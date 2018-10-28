@@ -23,7 +23,6 @@ class YoutubePlaylist extends WordPressPlugin
     wp_enqueue_style( 'youtube-playlist' );
     wp_enqueue_style( 'bootstrap' );
     ob_start();
-    echo "hello";
     return ob_get_clean();
   }
 

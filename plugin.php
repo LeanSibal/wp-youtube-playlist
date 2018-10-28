@@ -15,6 +15,8 @@ class WordPressPlugin
 
   public $shortcodes = [];
 
+  public $styles = [];
+
 	public function __construct() {
 		self::setup_actions();
 		self::setup_filters();
