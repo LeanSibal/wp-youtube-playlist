@@ -17,6 +17,8 @@ class WordPressPlugin
 
   public $styles = [];
 
+  public $scripts = [];
+
 	public function __construct() {
 		self::setup_actions();
 		self::setup_filters();
@@ -24,7 +26,7 @@ class WordPressPlugin
 
 	protected function setup_actions() {
     if( !empty( $this->shortcodes ) ) $this->actions['setup_shortcodes'] = 'init';
-    if( !empty( $this->styles ) ) $this->actions['setup_styles'] = 'wp_enqueue_scripts';
+    if( !empty( $this->styles ) || !empty( $this->scripts ) ) $this->actions['setup_scripts_styles'] = 'wp_enqueue_scripts';
 		foreach( $this->actions as $function => $action ) {
       if( !method_exists( $this, $function ) ) continue;
 			$tag = !empty( $action['tag'] ) ? $action['tag'] : $action;
@@ -51,11 +53,20 @@ class WordPressPlugin
     }
   }
 
-  public function setup_styles() {
+  public function setup_scripts_styles() {
+    foreach( $this->scripts as $handle => $src ) {
+      $path = !empty( $src['src'] ) ? $src['src'] : $src;
+      if( !file_exists( plugin_dir_path( __FILE__ ) . $path ) && !filter_var( $path, FILTER_VALIDATE_URL ) ) continue;
+      $url = filter_var( $path, FILTER_VALIDATE_URL ) ? $path : plugins_url( $path, __FILE__ );
+      $deps = !empty( $src['deps'] ) ? $src['deps'] : [];
+      $ver = !empty( $src['ver'] ) ? $src['ver'] : $this->version;
+      $in_footer = !empty( $src['in_footer'] ) ? $in_footer : false;
+      wp_register_script( $handle, $url, $deps, $ver, $in_footer );
+    }
     foreach( $this->styles as $handle => $src ) {
       $path = !empty( $src['src'] ) ? $src['src'] : $src;
-      if( !file_exists( plugin_dir_path( __FILE__ ) . $src ) && !filter_var( $src, FILTER_VALIDATE_URL ) ) continue;
-      $url = filter_var( $src, FILTER_VALIDATE_URL ) ? $path : plugins_url( $path, __FILE__ );
+      if( !file_exists( plugin_dir_path( __FILE__ ) . $path ) && !filter_var( $path, FILTER_VALIDATE_URL ) ) continue;
+      $url = filter_var( $path, FILTER_VALIDATE_URL ) ? $path : plugins_url( $path, __FILE__ );
       $deps = !empty( $src['deps'] ) ? $src['deps'] : [];
       $ver = !empty( $src['ver'] ) ? $src['ver'] : $this->version;
       $media = !empty( $src['media'] ) ? $src['media'] : 'all';
