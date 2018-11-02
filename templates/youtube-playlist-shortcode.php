@@ -1,12 +1,27 @@
+<?php
+  $args = [
+    'post_type' => 'youtube-playlist',
+    'posts_per_page' => -1
+  ];
+  if( !empty( $atts['category'] ) ) {
+    $args['tax_query'] = [[
+      'taxonomy' => 'categories',
+      'field' => 'slug',
+      'terms' => 'aa'
+    ]];
+  }
+  $songs = new WP_Query( $args );
+?>
 <div class="youtube-playlist-container">
   <div class="youtube-container">
-    <iframe width="551" height="346" src="https://www.youtube.com/embed/aJOTlE1K90k?list=SRMaroon%205%20feat.%20Cardi%20B%20-%20Girl%20like%20you&amp;ecver=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
    </div>
    <div class="playlist-container">
     <ul class="playlist-items">
-      <li class="playlist-item">
-        1. Lukas Grahan // Love Someone
+      <?php while( $songs->have_posts() ): $songs->the_post(); ?>
+      <li class="playlist-item" data-video_id="<?php echo get_post_meta( get_the_ID() , 'youtube_video_id', true ); ?>">
+        <?php the_title(); ?>
       </li>
+      <?php endwhile; ?>
     </ul>
    </div>
 </div>
