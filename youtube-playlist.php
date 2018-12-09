@@ -30,11 +30,20 @@ class YoutubePlaylist extends WordPressPlugin
   public $actions = [
     'youtube_playlist_custom_post_type' => 'init',
     'youtube_playlist_custom_fields' => 'add_meta_boxes',
+    'admin_scripts' => 'admin_enqueue_scripts',
     'youtube_playlist_custom_post_save_fields' => [
       'tag' => 'save_post',
       'accepted_args' => 3
     ]
   ];
+
+  public function admin_scripts() {
+    wp_register_script(
+      'wp-youtube-admin-script',
+      plugins_url() . '/wp-youtube-playlist/assets/js/admin.js',
+      [ 'jquery', 'jquery-ui-autocomplete' ]
+    );
+  }
 
   public function youtube_playlist_custom_post_type() {
     $labels = [
@@ -85,12 +94,18 @@ class YoutubePlaylist extends WordPressPlugin
 
   public function youtube_playlist_custom_fields_form() {
     global $post;
+    wp_enqueue_script('wp-youtube-admin-script');
     $artist = get_post_meta( $post->ID, 'artist', true );
     $song_title = get_post_meta( $post->ID, 'song_title', true );
     $youtube_link = get_post_meta( $post->ID, 'youtube_link', true );
     ob_start();
     ?>
     <input type="hidden" name="youtube_playlist_nonce" value="<?php echo wp_create_nonce( basename(__FILE__) ); ?>">
+    <p>
+      <label for="artist">Search Youtube</label>
+      <br/>
+      <input type="text" name="search" id="youtube_search" class="regular-text" value=""/>
+    </p>
     <p>
       <label for="artist">Artist</label>
       <br/>
